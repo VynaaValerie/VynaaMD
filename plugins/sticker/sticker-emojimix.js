@@ -1,0 +1,32 @@
+const { loadBaileys } = require('../../baileys-loader.mjs');
+
+let baileys;
+
+const fetch = require('node-fetch')
+let fs = require("fs")
+
+const { sticker5 } = require('../../lib/sticker')
+
+let handler = async (m, { conn, text, args }) => {
+  if (!baileys) {
+    baileys = await loadBaileys();
+  }
+  const { MessageType } = baileys
+  
+  if (!args[0]) throw 'Contoh penggunaan:\n\n*.emojimix 🤨+😣*'
+  try {
+    let [emoji1, emoji2] = text.split`+`
+    let anu = await fetch(`https://api.vtech.biz.id/api/emoji/emojimix?emoji1=${emoji1}&emoji2=${emoji2}&apikey=${vtech}`)
+    let res = await anu.json()
+    let stiker = await sticker5(res.result.results[0].media_formats.png_transparent.url, false, packname, author)
+    await conn.sendFile(m.chat, stiker, 'sticker.webp', '', m)
+  } catch (e) {
+    m.reply('*🚩 Emoji tidak support!*');
+  }
+}
+
+handler.help = ['emojimix']
+handler.tags = ['sticker']
+handler.command = /^(emojimix)$/i
+handler.limit = true
+module.exports = handler
